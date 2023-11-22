@@ -75,7 +75,6 @@ class _FormExampleState extends State<FormExample> {
                     );
 
                     if (response.statusCode == 200) {
-                      // Autenticação bem-sucedida, navegue para a página de perfil
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -83,11 +82,9 @@ class _FormExampleState extends State<FormExample> {
                         ),
                       );
                     } else {
-                      // Tratar outros códigos de status aqui, se necessário
                       print('Falha na autenticação: ${response.statusCode}');
                     }
                   } catch (e) {
-                    // Tratar erros de conexão ou outros erros
                     print('Erro ao se conectar ao servidor: $e');
                   }
                 }
