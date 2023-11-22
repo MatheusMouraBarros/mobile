@@ -50,7 +50,6 @@ class _CadastroScreen3State extends State<CadastroScreen3> {
   }
 
   void _finalizarCadastro() {
-    // Lógica para o backend - está imprimindo no console para teste
     print('Graduações Salvas:');
     for (var grad in graduacoes) {
       print('${grad.tipo} em ${grad.curso} - ${grad.universidade}');

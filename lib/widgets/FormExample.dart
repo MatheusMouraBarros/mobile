@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:mobile/pages/ProfilePage.dart';
 
 class FormExample extends StatefulWidget {
@@ -61,17 +63,33 @@ class _FormExampleState extends State<FormExample> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 if (_formKey.currentState!.validate()) {
                   _formKey.currentState!.save();
-                  // Aqui você pode fazer a autenticação se necessário
-                  // Após a autenticação, navegue para a página de perfil
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProfilePage(),
-                    ),
-                  );
+
+                  try {
+                    final response = await http.post(
+                      Uri.parse(
+                          'https://backend-production-153d.up.railway.app/auth/login'),
+                      body: {'email': _email!, 'password': _password!},
+                    );
+
+                    if (response.statusCode == 200) {
+                      // Autenticação bem-sucedida, navegue para a página de perfil
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProfilePage(),
+                        ),
+                      );
+                    } else {
+                      // Tratar outros códigos de status aqui, se necessário
+                      print('Falha na autenticação: ${response.statusCode}');
+                    }
+                  } catch (e) {
+                    // Tratar erros de conexão ou outros erros
+                    print('Erro ao se conectar ao servidor: $e');
+                  }
                 }
               },
               child: const Text('Login'),

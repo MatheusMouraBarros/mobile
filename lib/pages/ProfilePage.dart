@@ -32,7 +32,6 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
 
-    // Simulando dados do usuário (substitua por sua lógica de obtenção de dados do usuário)
     _userProfile = UserProfile(
       name: 'Usuário Exemplo',
       description: 'Breve descrição do usuário.',
@@ -43,15 +42,13 @@ class _ProfilePageState extends State<ProfilePage> {
     _editedDescriptionController.text = _userProfile.description;
   }
 
-  // Método para salvar a descrição editada
   void _saveEditedDescription() {
     setState(() {
       _userProfile.description = _editedDescriptionController.text;
     });
-    Navigator.of(context).pop(); // Fecha o modal de edição
+    Navigator.of(context).pop();
   }
 
-  // Método para abrir a tela de edição de descrição
   void _openEditDescriptionModal() {
     showDialog(
       context: context,
@@ -87,7 +84,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Método para alternar entre "Lidos" e "Publicados"
   void _toggleArticlesView(bool showReadArticles) {
     setState(() {
       _showReadArticles = showReadArticles;
@@ -108,14 +104,12 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             Row(
               children: [
-                // Ícone de perfil menor
                 Icon(
                   Icons.account_circle,
                   size: 36.0,
                   color: Colors.blue,
                 ),
                 SizedBox(width: 16),
-                // Nome do usuário
                 Text(
                   _userProfile.name,
                   style: TextStyle(
@@ -126,7 +120,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
             SizedBox(height: 16),
-            // Botão para editar a descrição
             TextButton(
               onPressed: _openEditDescriptionModal,
               child: Text('Editar Descrição'),
@@ -142,21 +135,19 @@ class _ProfilePageState extends State<ProfilePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                // Botão "Lidos"
                 ElevatedButton(
                   onPressed: () => _toggleArticlesView(true),
                   style: ElevatedButton.styleFrom(
                     primary: _showReadArticles ? Colors.blue : null,
-                    minimumSize: Size(120, 48), // Largura fixa
+                    minimumSize: Size(120, 48),
                   ),
                   child: Text('Lidos'),
                 ),
-                // Botão "Publicados"
                 ElevatedButton(
                   onPressed: () => _toggleArticlesView(false),
                   style: ElevatedButton.styleFrom(
                     primary: !_showReadArticles ? Colors.blue : null,
-                    minimumSize: Size(120, 48), // Largura fixa
+                    minimumSize: Size(120, 48),
                   ),
                   child: Text('Publicados'),
                 ),

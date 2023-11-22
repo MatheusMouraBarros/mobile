@@ -61,9 +61,7 @@ class _FeedPageState extends State<FeedPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       ElevatedButton.icon(
-                        onPressed: () {
-                          // Handle like button press
-                        },
+                        onPressed: () {},
                         icon: Icon(Icons.thumb_up),
                         label: Text(''),
                         style: ButtonStyle(
@@ -85,9 +83,7 @@ class _FeedPageState extends State<FeedPage> {
                         ),
                       ),
                       ElevatedButton.icon(
-                        onPressed: () {
-                          // Handle share button press
-                        },
+                        onPressed: () {},
                         icon: Icon(Icons.share),
                         label: Text(''),
                         style: ButtonStyle(
