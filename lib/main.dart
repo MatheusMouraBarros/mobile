@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/FeedPage.dart';
+import 'package:mobile/pages/LoginPage.dart';
 
 void main() {
   runApp(MyApp());
@@ -18,7 +18,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData.light(),
-      home: FeedPage(articles: []),
+      home: LoginPage(),
     );
   }
 }

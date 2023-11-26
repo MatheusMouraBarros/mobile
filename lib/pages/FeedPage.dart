@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:mobile/pages/LoginPage.dart';
+import 'package:mobile/pages/CreatePostPage.dart';
 import 'package:mobile/pages/ProfilePage.dart';
 import 'package:mobile/pages/Ranking.dart';
 
@@ -11,16 +14,64 @@ class Article {
   Article({required this.title, required this.content, required this.link});
 }
 
+// ignore: must_be_immutable
 class FeedPage extends StatefulWidget {
-  final List<Article> articles;
+  String token;
 
-  FeedPage({required this.articles});
+  FeedPage({required this.token});
 
   @override
   _FeedPageState createState() => _FeedPageState();
 }
 
 class _FeedPageState extends State<FeedPage> {
+  List<Article> articles = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchArticles();
+  }
+
+  Future<void> _fetchArticles() async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://backend-production-153d.up.railway.app/publicacoes/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${widget.token}',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          articles = data.map((item) {
+            return Article(
+              title: item['title'],
+              content: item['content'],
+              link: item['link'],
+            );
+          }).toList();
+        });
+      } else if (response.statusCode == 401) {
+        print('Token expirado. Redirecionando para a tela de login...');
+        widget.token = "";
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LoginPage(),
+          ),
+        );
+      } else {
+        print('Falha ao buscar as publicações: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erro ao se conectar ao servidor: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,7 +80,7 @@ class _FeedPageState extends State<FeedPage> {
         backgroundColor: Colors.blue,
       ),
       body: ListView.builder(
-        itemCount: widget.articles.length,
+        itemCount: articles.length,
         itemBuilder: (context, index) {
           return Card(
             elevation: 4.0,
@@ -40,7 +91,7 @@ class _FeedPageState extends State<FeedPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.articles[index].title,
+                    articles[index].title,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18.0,
@@ -48,12 +99,12 @@ class _FeedPageState extends State<FeedPage> {
                   ),
                   SizedBox(height: 8.0),
                   Text(
-                    widget.articles[index].content,
+                    articles[index].content,
                     style: TextStyle(fontSize: 16.0),
                   ),
                   SizedBox(height: 8.0),
                   Text(
-                    widget.articles[index].link,
+                    articles[index].link,
                     style: TextStyle(fontSize: 14.0, color: Colors.blue),
                   ),
                   SizedBox(height: 16.0),
@@ -62,7 +113,7 @@ class _FeedPageState extends State<FeedPage> {
                     children: [
                       ElevatedButton.icon(
                         onPressed: () {},
-                        icon: Icon(Icons.thumb_up),
+                        icon: Icon(Icons.thumb_up, color: Colors.white),
                         label: Text(''),
                         style: ButtonStyle(
                           backgroundColor:
@@ -84,7 +135,7 @@ class _FeedPageState extends State<FeedPage> {
                       ),
                       ElevatedButton.icon(
                         onPressed: () {},
-                        icon: Icon(Icons.share),
+                        icon: Icon(Icons.share, color: Colors.white),
                         label: Text(''),
                         style: ButtonStyle(
                           backgroundColor:
@@ -109,11 +160,12 @@ class _FeedPageState extends State<FeedPage> {
           );
           if (result != null && result is Article) {
             setState(() {
-              widget.articles.add(result);
+              articles.add(result);
             });
           }
         },
-        child: Icon(Icons.add),
+        child: Icon(Icons.add, color: Colors.white),
+        backgroundColor: Colors.blue,
       ),
       drawer: Drawer(
         child: ListView(
@@ -132,18 +184,6 @@ class _FeedPageState extends State<FeedPage> {
               ),
             ),
             ListTile(
-              title: Text('Perfil'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProfilePage(),
-                  ),
-                );
-              },
-            ),
-            ListTile(
               title: Text('Ranking'),
               onTap: () {
                 Navigator.pop(context);
@@ -156,70 +196,28 @@ class _FeedPageState extends State<FeedPage> {
               },
             ),
             ListTile(
-              title: Text('Sair'),
+              title: Text('Perfil'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfilePage(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: Text('Sair'),
+              onTap: () {
+                widget.token = "";
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => LoginPage(),
                   ),
                 );
               },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class CreatePostPage extends StatefulWidget {
-  @override
-  _CreatePostPageState createState() => _CreatePostPageState();
-}
-
-class _CreatePostPageState extends State<CreatePostPage> {
-  final TextEditingController titleController = TextEditingController();
-  final TextEditingController contentController = TextEditingController();
-  final TextEditingController linkController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Criar Publicação'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: InputDecoration(labelText: 'Título'),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: contentController,
-              decoration: InputDecoration(labelText: 'Descrição'),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: linkController,
-              decoration: InputDecoration(labelText: 'Link'),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                final newPost = Article(
-                  title: titleController.text,
-                  content: contentController.text,
-                  link: linkController.text,
-                );
-                Navigator.pop(context, newPost);
-              },
-              child: Text('Criar Publicação'),
             ),
           ],
         ),

@@ -18,27 +18,47 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: Colors.blue,
         leading: Container(),
       ),
-      body: Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SizedBox(height: 20.0),
-            FormExample(),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CadastroScreen()),
-                );
-              },
-              child: Text(
-                'Cadastre-se',
+      resizeToAvoidBottomInset: false,
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: 40.0),
+              Image.asset(
+                'lib/assets/logo.png',
+                width: 80,
+                height: 80,
+              ),
+              SizedBox(height: 16.0),
+              Text(
+                'Social Study',
                 style: TextStyle(
-                  color: const Color.fromARGB(255, 0, 0, 0),
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 60.0),
+              FormExample(),
+              SizedBox(height: 120.0),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CadastroScreen()),
+                  );
+                },
+                child: Text(
+                  'Cadastre-se',
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 0, 0, 0),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

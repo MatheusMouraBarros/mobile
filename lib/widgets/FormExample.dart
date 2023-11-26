@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:mobile/pages/ProfilePage.dart';
+import 'package:mobile/pages/FeedPage.dart';
 
 class FormExample extends StatefulWidget {
   const FormExample({Key? key});
@@ -14,6 +14,45 @@ class _FormExampleState extends State<FormExample> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? _email;
   String? _password;
+
+  void _loginButtonPressed() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      print('JSON enviado: {email: $_email, password: $_password}');
+
+      try {
+        final response = await http.post(
+          Uri.parse(
+              'https://backend-production-153d.up.railway.app/auth/login'),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            'email': _email!,
+            'password': _password!,
+          }),
+        );
+
+        print('Resposta do servidor: ${response.body}');
+
+        if (response.statusCode == 200) {
+          final token = json.decode(response.body)['token'];
+          print('Token: $token');
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FeedPage(token: token),
+            ),
+          );
+        } else {
+          print('Falha na autenticação: ${response.statusCode}');
+        }
+      } catch (e) {
+        print('Erro ao se conectar ao servidor: $e');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,32 +102,11 @@ class _FormExampleState extends State<FormExample> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-
-                  try {
-                    final response = await http.post(
-                      Uri.parse(
-                          'https://backend-production-153d.up.railway.app/auth/login'),
-                      body: {'email': _email!, 'password': _password!},
-                    );
-
-                    if (response.statusCode == 200) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProfilePage(),
-                        ),
-                      );
-                    } else {
-                      print('Falha na autenticação: ${response.statusCode}');
-                    }
-                  } catch (e) {
-                    print('Erro ao se conectar ao servidor: $e');
-                  }
-                }
-              },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+              ),
+              onPressed: _loginButtonPressed,
               child: const Text('Login'),
             ),
           ),

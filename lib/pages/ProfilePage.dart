@@ -2,22 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:mobile/pages/FeedPage.dart';
 import 'package:mobile/pages/LoginPage.dart';
 import 'package:mobile/pages/Ranking.dart';
-
-class UserProfile {
-  final String name;
-  String description;
-  List<String> publishedArticles;
-  List<String> readArticles;
-
-  UserProfile({
-    required this.name,
-    required this.description,
-    required this.publishedArticles,
-    required this.readArticles,
-  });
-}
+import 'package:mobile/widgets/UserProfile.dart';
 
 class ProfilePage extends StatefulWidget {
+  set token(String token) {}
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -35,8 +24,23 @@ class _ProfilePageState extends State<ProfilePage> {
     _userProfile = UserProfile(
       name: 'Usuário Exemplo',
       description: 'Breve descrição do usuário.',
-      publishedArticles: ['Artigo 1', 'Artigo 2'],
-      readArticles: ['Artigo 3', 'Artigo 4'],
+      publishedArticles: [
+        'Artigo 1',
+        'Artigo 2',
+        'Artigo 3',
+        'Artigo 4',
+        'Artigo 5',
+        'Artigo 6',
+        'Artigo 7',
+      ],
+      readArticles: [
+        'Artigo 8',
+        'Artigo 9',
+        'Artigo 10',
+        'Artigo 11',
+        'Artigo 12',
+        'Artigo 13',
+      ],
     );
 
     _editedDescriptionController.text = _userProfile.description;
@@ -138,18 +142,28 @@ class _ProfilePageState extends State<ProfilePage> {
                 ElevatedButton(
                   onPressed: () => _toggleArticlesView(true),
                   style: ElevatedButton.styleFrom(
-                    primary: _showReadArticles ? Colors.blue : null,
+                    primary: Colors.blue,
                     minimumSize: Size(120, 48),
                   ),
-                  child: Text('Lidos'),
+                  child: Text(
+                    'Lidos',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () => _toggleArticlesView(false),
                   style: ElevatedButton.styleFrom(
-                    primary: !_showReadArticles ? Colors.blue : null,
+                    primary: Colors.blue,
                     minimumSize: Size(120, 48),
                   ),
-                  child: Text('Publicados'),
+                  child: Text(
+                    'Publicados',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -161,15 +175,19 @@ class _ProfilePageState extends State<ProfilePage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: _showReadArticles
-                  ? _userProfile.readArticles
-                      .map((article) => Text('- $article'))
-                      .toList()
-                  : _userProfile.publishedArticles
-                      .map((article) => Text('- $article'))
-                      .toList(),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _showReadArticles
+                    ? _userProfile.readArticles.length
+                    : _userProfile.publishedArticles.length,
+                itemBuilder: (context, index) {
+                  final article = _showReadArticles
+                      ? _userProfile.readArticles[index]
+                      : _userProfile.publishedArticles[index];
+
+                  return _buildArticleCard(article);
+                },
+              ),
             ),
           ],
         ),
@@ -198,7 +216,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => FeedPage(
-                      articles: [],
+                      token: '',
                     ),
                   ),
                 );
@@ -219,8 +237,8 @@ class _ProfilePageState extends State<ProfilePage> {
             ListTile(
               title: Text('Sair'),
               onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
+                widget.token = "";
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => LoginPage(),
@@ -230,6 +248,30 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildArticleCard(String article) {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.all(16.0),
+      margin: EdgeInsets.only(bottom: 16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Text(
+        article,
+        style: TextStyle(fontSize: 16),
       ),
     );
   }

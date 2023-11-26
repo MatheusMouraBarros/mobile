@@ -6,6 +6,8 @@ import 'package:mobile/pages/ProfilePage.dart';
 class Ranking extends StatefulWidget {
   const Ranking({Key? key}) : super(key: key);
 
+  set token(String token) {}
+
   @override
   State<Ranking> createState() => _RankingState();
 }
@@ -69,8 +71,8 @@ class _RankingState extends State<Ranking> {
             ListTile(
               title: Text('Sair'),
               onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
+                widget.token = "";
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => LoginPage(),
@@ -90,11 +92,14 @@ class _RankingState extends State<Ranking> {
         },
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.book),
+            icon: Icon(Icons.book, color: Colors.blue),
             label: 'Lidos',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.note),
+            icon: Icon(
+              Icons.note,
+              color: Colors.blue,
+            ),
             label: 'Publicados',
           ),
         ],
@@ -107,7 +112,7 @@ class _RankingState extends State<Ranking> {
       context,
       MaterialPageRoute(
           builder: (context) => FeedPage(
-                articles: [],
+                token: '',
               )),
     );
   }
@@ -130,6 +135,9 @@ class _RankingScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Container(
+          padding: EdgeInsets.all(10),
+        ),
         Text(
           'Ranking $category',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -152,7 +160,7 @@ class _RankingScreen extends StatelessWidget {
                   ),
                   trailing: Icon(
                     category == 'Lidos' ? Icons.book : Icons.note,
-                    color: Colors.grey,
+                    color: Colors.blue,
                   ),
                 ),
               );

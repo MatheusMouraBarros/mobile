@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/pages/CadastroScreen3.dart';
+import 'package:mobile/widgets/UserData.dart';
+import 'package:mobile/widgets/UserRegistrationData.dart';
 
 class CadastroScreen2 extends StatefulWidget {
+  final UserRegistrationData userRegistrationData;
+
+  CadastroScreen2({required this.userRegistrationData});
+
   @override
   _CadastroScreen2State createState() => _CadastroScreen2State();
 }
 
 class _CadastroScreen2State extends State<CadastroScreen2> {
+  final _userData = UserData();
   final _nomeController = TextEditingController();
   final _sobrenomeController = TextEditingController();
   final _dataNascimentoController = TextEditingController();
@@ -35,6 +42,7 @@ class _CadastroScreen2State extends State<CadastroScreen2> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextField(
+                onChanged: (value) => _userData.nome = value,
                 controller: _nomeController,
                 decoration: InputDecoration(
                   labelText: 'Nome',
@@ -44,6 +52,7 @@ class _CadastroScreen2State extends State<CadastroScreen2> {
               ),
               SizedBox(height: 16.0),
               TextField(
+                onChanged: (value) => _userData.sobrenome = value,
                 controller: _sobrenomeController,
                 decoration: InputDecoration(
                   labelText: 'Sobrenome',
@@ -53,6 +62,7 @@ class _CadastroScreen2State extends State<CadastroScreen2> {
               ),
               SizedBox(height: 16.0),
               TextField(
+                onChanged: (value) => _userData.dataNascimento = value,
                 controller: _dataNascimentoController,
                 decoration: InputDecoration(
                   labelText: 'Data de Nascimento',
@@ -66,6 +76,7 @@ class _CadastroScreen2State extends State<CadastroScreen2> {
                 onChanged: (String? newValue) {
                   setState(() {
                     _selectedEstado = newValue!;
+                    _userData.estado = newValue;
                   });
                 },
                 items: estados.map((String estado) {
@@ -77,6 +88,7 @@ class _CadastroScreen2State extends State<CadastroScreen2> {
               ),
               SizedBox(height: 16.0),
               TextField(
+                onChanged: (value) => _userData.cidade = value,
                 controller: _cidadeController,
                 decoration: InputDecoration(
                   labelText: 'Cidade',
@@ -86,11 +98,26 @@ class _CadastroScreen2State extends State<CadastroScreen2> {
               ),
               SizedBox(height: 32.0),
               ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.blue),
+                  foregroundColor:
+                      MaterialStateProperty.all<Color>(Colors.white),
+                ),
                 onPressed: () {
-                  // Lógica para o backend
+                  print('Nome: ${_userData.nome}');
+                  print('Sobrenome: ${_userData.sobrenome}');
+                  print('Data de Nascimento: ${_userData.dataNascimento}');
+                  print('Estado: ${_userData.estado}');
+                  print('Cidade: ${_userData.cidade}');
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => CadastroScreen3()),
+                    MaterialPageRoute(
+                      builder: (context) => CadastroScreen3(
+                        userRegistrationData: widget.userRegistrationData,
+                        userData: _userData,
+                      ),
+                    ),
                   );
                 },
                 child: Text('Próximo 2/3'),

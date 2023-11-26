@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/pages/CadastroScreen2.dart';
+import 'package:mobile/widgets/UserRegistrationData.dart';
 
 class CadastroScreen extends StatefulWidget {
   @override
@@ -7,16 +8,85 @@ class CadastroScreen extends StatefulWidget {
 }
 
 class _CadastroScreenState extends State<CadastroScreen> {
-  final _emailController = TextEditingController();
-  final _confirmarEmailController = TextEditingController();
-  final _senhaController = TextEditingController();
-  final _confirmarSenhaController = TextEditingController();
+  final _userData = UserRegistrationData();
 
   void _cadastrar() {
-    // Lógica para o backend
+    if (_userData.email.isEmpty ||
+        _userData.confirmarEmail.isEmpty ||
+        _userData.senha.isEmpty ||
+        _userData.confirmarSenha.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Erro'),
+            content: Text('Por favor, preencha todos os campos.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    if (_userData.email != _userData.confirmarEmail) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Erro'),
+            content: Text('Os campos de e-mail não correspondem.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    if (_userData.senha != _userData.confirmarSenha) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Erro'),
+            content: Text('Os campos de senha não correspondem.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    print('E-mail: ${_userData.email}');
+    print('Confirmar E-mail: ${_userData.confirmarEmail}');
+    print('Senha: ${_userData.senha}');
+    print('Confirmar Senha: ${_userData.confirmarSenha}');
+
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CadastroScreen2()),
+      MaterialPageRoute(
+        builder: (context) => CadastroScreen2(userRegistrationData: _userData),
+      ),
     );
   }
 
@@ -33,7 +103,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: _emailController,
+              onChanged: (value) => _userData.email = value,
               decoration: InputDecoration(
                 labelText: 'E-mail',
                 prefixIcon: Icon(Icons.email),
@@ -42,7 +112,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
             ),
             SizedBox(height: 16.0),
             TextField(
-              controller: _confirmarEmailController,
+              onChanged: (value) => _userData.confirmarEmail = value,
               decoration: InputDecoration(
                 labelText: 'Confirmar E-mail',
                 prefixIcon: Icon(Icons.email),
@@ -51,7 +121,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
             ),
             SizedBox(height: 16.0),
             TextField(
-              controller: _senhaController,
+              onChanged: (value) => _userData.senha = value,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Senha',
@@ -61,7 +131,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
             ),
             SizedBox(height: 16.0),
             TextField(
-              controller: _confirmarSenhaController,
+              onChanged: (value) => _userData.confirmarSenha = value,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Confirmar Senha',
@@ -73,6 +143,10 @@ class _CadastroScreenState extends State<CadastroScreen> {
             ElevatedButton(
               onPressed: _cadastrar,
               child: Text('Próximo 1/3'),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+              ),
             ),
           ],
         ),
