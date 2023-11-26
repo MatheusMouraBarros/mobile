@@ -10,11 +10,16 @@ class Article {
   final String title;
   final String content;
   final String link;
+  final int likeCount;
 
-  Article({required this.title, required this.content, required this.link});
+  Article({
+    required this.title,
+    required this.content,
+    required this.link,
+    required this.likeCount,
+  });
 }
 
-// ignore: must_be_immutable
 class FeedPage extends StatefulWidget {
   String token;
 
@@ -27,17 +32,24 @@ class FeedPage extends StatefulWidget {
 class _FeedPageState extends State<FeedPage> {
   List<Article> articles = [];
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchArticles();
+  List<Article> _decodeArticles(String responseBody) {
+    final List<dynamic> data = json.decode(responseBody)['publicacoes'];
+    return data.map((item) {
+      return Article(
+        title: item['titulo'],
+        content: item['descricao'],
+        link: item['link'],
+        likeCount: item['like_count'],
+      );
+    }).toList();
   }
 
   Future<void> _fetchArticles() async {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://backend-production-153d.up.railway.app/publicacoes/'),
+          'https://backend-production-153d.up.railway.app/publicacoes/',
+        ),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${widget.token}',
@@ -45,15 +57,8 @@ class _FeedPageState extends State<FeedPage> {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
         setState(() {
-          articles = data.map((item) {
-            return Article(
-              title: item['title'],
-              content: item['content'],
-              link: item['link'],
-            );
-          }).toList();
+          articles = _decodeArticles(response.body);
         });
       } else if (response.statusCode == 401) {
         print('Token expirado. Redirecionando para a tela de login...');
@@ -73,6 +78,12 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _fetchArticles();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -84,68 +95,86 @@ class _FeedPageState extends State<FeedPage> {
         itemBuilder: (context, index) {
           return Card(
             elevation: 4.0,
-            margin: EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    articles[index].title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18.0,
+            margin: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(
+                        'https://via.placeholder.com/500x200',
+                      ),
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(height: 8.0),
-                  Text(
-                    articles[index].content,
-                    style: TextStyle(fontSize: 16.0),
-                  ),
-                  SizedBox(height: 8.0),
-                  Text(
-                    articles[index].link,
-                    style: TextStyle(fontSize: 14.0, color: Colors.blue),
-                  ),
-                  SizedBox(height: 16.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: Icon(Icons.thumb_up, color: Colors.white),
-                        label: Text(''),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.blue),
+                      Text(
+                        articles[index].title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18.0,
                         ),
                       ),
-                      Expanded(
-                        child: Container(
-                          margin: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: TextField(
-                            style: TextStyle(fontSize: 14.0),
-                            decoration: InputDecoration(
-                              hintText: 'Comentar...',
-                              contentPadding: EdgeInsets.all(8.0),
-                              border: OutlineInputBorder(),
+                      SizedBox(height: 8.0),
+                      Text(
+                        articles[index].content,
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                      SizedBox(height: 8.0),
+                      Text(
+                        articles[index].link,
+                        style: TextStyle(
+                          fontSize: 14.0,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      SizedBox(height: 16.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: () {},
+                                icon: Icon(Icons.thumb_up),
+                                label: Text('Like'),
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                    Colors.blue,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 8.0),
+                              Text(
+                                '${articles[index].likeCount} Likes',
+                                style: TextStyle(fontSize: 14.0),
+                              ),
+                            ],
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () {},
+                            icon: Icon(Icons.share),
+                            label: Text('Share'),
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.orange,
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: Icon(Icons.share, color: Colors.white),
-                        label: Text(''),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.orange),
-                        ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         },
