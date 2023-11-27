@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/pages/LoginPage.dart';
-import 'package:mobile/pages/CreatePostPage.dart';
+import 'package:mobile/pages/PostPage.dart';
 import 'package:mobile/pages/ProfilePage.dart';
 import 'package:mobile/pages/Ranking.dart';
 
@@ -184,13 +184,11 @@ class _FeedPageState extends State<FeedPage> {
           final result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => CreatePostPage(),
+              builder: (context) => PostPage(token: widget.token),
             ),
           );
-          if (result != null && result is Article) {
-            setState(() {
-              articles.add(result);
-            });
+          if (result != null && result is bool && result) {
+            _fetchArticles();
           }
         },
         child: Icon(Icons.add, color: Colors.white),
