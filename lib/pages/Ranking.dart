@@ -110,10 +110,7 @@ class _RankingState extends State<Ranking> {
   void _navigateToFeed(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (context) => FeedPage(
-                token: '',
-              )),
+      MaterialPageRoute(builder: (context) => FeedPage()),
     );
   }
 

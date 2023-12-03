@@ -215,9 +215,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => FeedPage(
-                      token: '',
-                    ),
+                    builder: (context) => FeedPage(),
                   ),
                 );
               },

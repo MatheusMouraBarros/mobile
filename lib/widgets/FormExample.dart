@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/pages/FeedPage.dart';
+import 'package:mobile/widgets/Token.dart';
 
 class FormExample extends StatefulWidget {
   const FormExample({Key? key});
@@ -38,11 +39,12 @@ class _FormExampleState extends State<FormExample> {
         if (response.statusCode == 200) {
           final token = json.decode(response.body)['token'];
           print('Token: $token');
+          Token().token = token;
 
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => FeedPage(token: token),
+              builder: (context) => FeedPage(),
             ),
           );
         } else {
