@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decode/jwt_decode.dart';
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart'; // Importe o pacote url_launcher
 import 'package:mobile/pages/LoginPage.dart';
 import 'package:mobile/pages/PostPage.dart';
 import 'package:mobile/pages/ProfilePage.dart';
@@ -11,11 +11,11 @@ import 'package:mobile/pages/Ranking.dart';
 import 'package:mobile/widgets/Token.dart';
 
 class Article {
+  final int postId;
   final String title;
   final String content;
   final String link;
   final int likeCount;
-  // Novos atributos para informações da pessoa
   final String personName;
   final String personLastName;
   final String personCity;
@@ -23,6 +23,7 @@ class Article {
   final String personBirthday;
 
   Article({
+    required this.postId,
     required this.title,
     required this.content,
     required this.link,
@@ -49,6 +50,7 @@ class _FeedPageState extends State<FeedPage> {
     final List<dynamic> jsonData = json.decode(responseBody)['publicacoes'];
     return jsonData.map((item) {
       return Article(
+        postId: item['id'],
         title: item['titulo'],
         content: item['descricao'],
         link: item['link'],
@@ -113,6 +115,34 @@ class _FeedPageState extends State<FeedPage> {
     }
   }
 
+  Future<void> _likePost(int publicacaoId) async {
+    try {
+      if (!_isTokenValid(Token().token)) {
+        print('Token inválido ou expirado');
+        _handleInvalidToken();
+        return;
+      }
+
+      final response = await http.post(
+        Uri.parse(
+            'https://backend-production-153d.up.railway.app/curtir/$publicacaoId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${Token().token}',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Publicação curtida com sucesso!');
+        _fetchArticles();
+      } else {
+        print('Falha ao curtir a publicação: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Erro ao se conectar ao servidor: $e');
+    }
+  }
+
   void _handleInvalidToken() {
     Token().token = "";
     Navigator.pushReplacement(
@@ -147,7 +177,7 @@ class _FeedPageState extends State<FeedPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Container(
+                /*  Container(
                   height: 200,
                   decoration: BoxDecoration(
                     image: DecorationImage(
@@ -157,7 +187,7 @@ class _FeedPageState extends State<FeedPage> {
                       fit: BoxFit.cover,
                     ),
                   ),
-                ),
+                ), */
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -176,11 +206,18 @@ class _FeedPageState extends State<FeedPage> {
                         style: TextStyle(fontSize: 16.0),
                       ),
                       SizedBox(height: 8.0),
-                      Text(
-                        articles[index].link,
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          color: Colors.blue,
+                      InkWell(
+                        onTap: () async {
+                          String url = articles[index].link;
+                          await launch(url);
+                        },
+                        child: Text(
+                          articles[index].link,
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
                         ),
                       ),
                       SizedBox(height: 16.0),
@@ -204,9 +241,12 @@ class _FeedPageState extends State<FeedPage> {
                           Row(
                             children: [
                               ElevatedButton.icon(
-                                onPressed: () {},
-                                icon: Icon(Icons.thumb_up),
-                                label: Text('Like'),
+                                onPressed: () {
+                                  _likePost(articles[index].postId);
+                                },
+                                icon: Icon(Icons.thumb_up, color: Colors.white),
+                                label: Text('Curtir',
+                                    style: TextStyle(color: Colors.white)),
                                 style: ButtonStyle(
                                   backgroundColor:
                                       MaterialStateProperty.all<Color>(
@@ -216,15 +256,16 @@ class _FeedPageState extends State<FeedPage> {
                               ),
                               SizedBox(width: 8.0),
                               Text(
-                                '${articles[index].likeCount} Likes',
+                                '${articles[index].likeCount} Curtidas',
                                 style: TextStyle(fontSize: 14.0),
                               ),
                             ],
                           ),
                           ElevatedButton.icon(
                             onPressed: () {},
-                            icon: Icon(Icons.share),
-                            label: Text('Share'),
+                            icon: Icon(Icons.share, color: Colors.white),
+                            label: Text('Share',
+                                style: TextStyle(color: Colors.white)),
                             style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(
                                 Colors.orange,
