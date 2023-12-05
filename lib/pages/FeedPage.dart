@@ -45,6 +45,7 @@ class FeedPage extends StatefulWidget {
 
 class _FeedPageState extends State<FeedPage> {
   List<Article> articles = [];
+  TextEditingController commentController = TextEditingController();
 
   List<Article> _decodeArticles(String responseBody) {
     final List<dynamic> jsonData =
@@ -144,6 +145,21 @@ class _FeedPageState extends State<FeedPage> {
     }
   }
 
+  Future<void> _postComment(int postId, String comment) async {
+    try {
+      if (!_isTokenValid(Token().token)) {
+        print('Token inválido ou expirado');
+        _handleInvalidToken();
+        return;
+      }
+
+      // Adicione sua lógica para enviar o comentário ao servidor
+      print('Comentário postado: $comment');
+    } catch (e) {
+      print('Erro ao postar comentário: $e');
+    }
+  }
+
   void _handleInvalidToken() {
     Token().token = "";
     Navigator.pushReplacement(
@@ -160,6 +176,45 @@ class _FeedPageState extends State<FeedPage> {
     scheduleMicrotask(() {
       _fetchArticles();
     });
+  }
+
+  Future<void> _openCommentModal(int postId) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Comentar'),
+          content: TextField(
+            controller: commentController,
+            maxLines: 3,
+            decoration: InputDecoration(
+              hintText: 'Escreva seu comentário...',
+            ),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              onPressed: () {
+                _postComment(postId, commentController.text);
+                Navigator.of(context).pop();
+              },
+              child: Text('Comentar'),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancelar'),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -234,7 +289,7 @@ class _FeedPageState extends State<FeedPage> {
                                   _likePost(articles[index].postId);
                                 },
                                 icon: Icon(Icons.thumb_up, color: Colors.white),
-                                label: Text('Like ${articles[index].likeCount}',
+                                label: Text('${articles[index].likeCount}',
                                     style: TextStyle(color: Colors.white)),
                                 style: ButtonStyle(
                                   backgroundColor:
@@ -243,25 +298,28 @@ class _FeedPageState extends State<FeedPage> {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 6.0),
+                              SizedBox(width: 45.0),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  _openCommentModal(articles[index].postId);
+                                },
+                                icon: Icon(Icons.comment, color: Colors.white),
+                                label: Text('',
+                                    style: TextStyle(color: Colors.white)),
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                    Colors.green,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                           ElevatedButton.icon(
                             onPressed: () {},
-                            icon: Icon(Icons.comment, color: Colors.white),
+                            icon: Icon(Icons.share, color: Colors.white),
                             label:
                                 Text('', style: TextStyle(color: Colors.white)),
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                Colors.green,
-                              ),
-                            ),
-                          ),
-                          ElevatedButton.icon(
-                            onPressed: () {},
-                            icon: Icon(Icons.share, color: Colors.white),
-                            label: Text('Share',
-                                style: TextStyle(color: Colors.white)),
                             style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(
                                 Colors.orange,
