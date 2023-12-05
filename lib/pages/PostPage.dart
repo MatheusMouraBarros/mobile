@@ -47,7 +47,7 @@ class _PostPageState extends State<PostPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Publish Post'),
+        title: Text('Post'),
         backgroundColor: Colors.blue,
       ),
       body: Padding(
@@ -57,12 +57,12 @@ class _PostPageState extends State<PostPage> {
           children: [
             TextField(
               controller: titleController,
-              decoration: InputDecoration(labelText: 'Title'),
+              decoration: InputDecoration(labelText: 'Titulo'),
             ),
             SizedBox(height: 16.0),
             TextField(
               controller: contentController,
-              decoration: InputDecoration(labelText: 'Content'),
+              decoration: InputDecoration(labelText: 'Descriação'),
             ),
             SizedBox(height: 16.0),
             TextField(

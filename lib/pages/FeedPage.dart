@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart'; // Importe o pacote url_launcher
+import 'package:url_launcher/url_launcher.dart';
 import 'package:mobile/pages/LoginPage.dart';
 import 'package:mobile/pages/PostPage.dart';
 import 'package:mobile/pages/ProfilePage.dart';
@@ -47,7 +47,8 @@ class _FeedPageState extends State<FeedPage> {
   List<Article> articles = [];
 
   List<Article> _decodeArticles(String responseBody) {
-    final List<dynamic> jsonData = json.decode(responseBody)['publicacoes'];
+    final List<dynamic> jsonData =
+        json.decode(utf8.decode(responseBody.codeUnits))['publicacoes'];
     return jsonData.map((item) {
       return Article(
         postId: item['id'],
@@ -177,17 +178,6 @@ class _FeedPageState extends State<FeedPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                /*  Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(
-                        'https://via.placeholder.com/500x200',
-                      ),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ), */
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -221,7 +211,6 @@ class _FeedPageState extends State<FeedPage> {
                         ),
                       ),
                       SizedBox(height: 16.0),
-                      // Exibir informações da pessoa
                       Text(
                         'Autor: ${articles[index].personName} ${articles[index].personLastName}',
                         style: TextStyle(fontSize: 14.0),
@@ -245,7 +234,7 @@ class _FeedPageState extends State<FeedPage> {
                                   _likePost(articles[index].postId);
                                 },
                                 icon: Icon(Icons.thumb_up, color: Colors.white),
-                                label: Text('Curtir',
+                                label: Text('Like ${articles[index].likeCount}',
                                     style: TextStyle(color: Colors.white)),
                                 style: ButtonStyle(
                                   backgroundColor:
@@ -254,12 +243,19 @@ class _FeedPageState extends State<FeedPage> {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 8.0),
-                              Text(
-                                '${articles[index].likeCount} Curtidas',
-                                style: TextStyle(fontSize: 14.0),
-                              ),
+                              SizedBox(width: 6.0),
                             ],
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () {},
+                            icon: Icon(Icons.comment, color: Colors.white),
+                            label:
+                                Text('', style: TextStyle(color: Colors.white)),
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.green,
+                              ),
+                            ),
                           ),
                           ElevatedButton.icon(
                             onPressed: () {},
