@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/pages/CommentsPage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mobile/pages/LoginPage.dart';
 import 'package:mobile/pages/PostPage.dart';
@@ -33,6 +34,18 @@ class Article {
     required this.personCity,
     required this.personState,
     required this.personBirthday,
+  });
+}
+
+class Comment {
+  final int commentId;
+  final String commentText;
+  final String commenterName;
+
+  Comment({
+    required this.commentId,
+    required this.commentText,
+    required this.commenterName,
   });
 }
 
@@ -153,10 +166,27 @@ class _FeedPageState extends State<FeedPage> {
         return;
       }
 
-      // Adicione sua lógica para enviar o comentário ao servidor
-      print('Comentário postado: $comment');
+      final response = await http.post(
+        Uri.parse(
+            'https://backend-production-153d.up.railway.app/comentarios/comentar/$postId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${Token().token}',
+        },
+        body: jsonEncode({'texto_comentario': comment}),
+      );
+
+      if (response.statusCode == 200) {
+        print('Comentário postado com sucesso!');
+        _fetchArticles();
+
+        // Limpar o texto do controlador após o comentário ser postado
+        commentController.clear();
+      } else {
+        print('Falha ao postar o comentário: ${response.reasonPhrase}');
+      }
     } catch (e) {
-      print('Erro ao postar comentário: $e');
+      print('Erro ao postar o comentário: $e');
     }
   }
 
@@ -178,42 +208,12 @@ class _FeedPageState extends State<FeedPage> {
     });
   }
 
-  Future<void> _openCommentModal(int postId) async {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Comentar'),
-          content: TextField(
-            controller: commentController,
-            maxLines: 3,
-            decoration: InputDecoration(
-              hintText: 'Escreva seu comentário...',
-            ),
-          ),
-          actions: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                _postComment(postId, commentController.text);
-                Navigator.of(context).pop();
-              },
-              child: Text('Comentar'),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancelar'),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-              ),
-            ),
-          ],
-        );
-      },
+  Future<void> _openCommentsPage(int postId) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CommentsPage(postId: postId),
+      ),
     );
   }
 
@@ -289,8 +289,10 @@ class _FeedPageState extends State<FeedPage> {
                                   _likePost(articles[index].postId);
                                 },
                                 icon: Icon(Icons.thumb_up, color: Colors.white),
-                                label: Text('${articles[index].likeCount}',
-                                    style: TextStyle(color: Colors.white)),
+                                label: Text(
+                                  '${articles[index].likeCount}',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                                 style: ButtonStyle(
                                   backgroundColor:
                                       MaterialStateProperty.all<Color>(
@@ -299,17 +301,20 @@ class _FeedPageState extends State<FeedPage> {
                                 ),
                               ),
                               SizedBox(width: 45.0),
+                              SizedBox(width: 8.0),
                               ElevatedButton.icon(
                                 onPressed: () {
-                                  _openCommentModal(articles[index].postId);
+                                  _openCommentsPage(articles[index].postId);
                                 },
-                                icon: Icon(Icons.comment, color: Colors.white),
-                                label: Text('',
-                                    style: TextStyle(color: Colors.white)),
+                                icon: Icon(Icons.chat, color: Colors.white),
+                                label: Text(
+                                  '',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                                 style: ButtonStyle(
                                   backgroundColor:
                                       MaterialStateProperty.all<Color>(
-                                    Colors.green,
+                                    Colors.purple,
                                   ),
                                 ),
                               ),
@@ -318,8 +323,10 @@ class _FeedPageState extends State<FeedPage> {
                           ElevatedButton.icon(
                             onPressed: () {},
                             icon: Icon(Icons.share, color: Colors.white),
-                            label:
-                                Text('', style: TextStyle(color: Colors.white)),
+                            label: Text(
+                              '', // Adicione seu texto aqui se necessário
+                              style: TextStyle(color: Colors.white),
+                            ),
                             style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(
                                 Colors.orange,

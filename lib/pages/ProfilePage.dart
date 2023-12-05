@@ -173,6 +173,7 @@ class _ProfilePageState extends State<ProfilePage> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
+                color: Colors.blue,
               ),
             ),
             Expanded(
@@ -251,25 +252,15 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildArticleCard(String article) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      padding: EdgeInsets.all(16.0),
+    return Card(
       margin: EdgeInsets.only(bottom: 16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Text(
-        article,
-        style: TextStyle(fontSize: 16),
+      elevation: 5.0,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+          article,
+          style: TextStyle(fontSize: 16, color: Colors.blue),
+        ),
       ),
     );
   }
